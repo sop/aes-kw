@@ -1,6 +1,6 @@
 {
 	"name": "sop/aes-kw",
-	"description": "A PHP library for AES Key Wrap algorithm with padding support",
+	"description": "A PHP library for AES Key Wrap algorithm with padding support.",
 	"homepage": "https://github.com/sop/aes-kw",
 	"license": "MIT",
 	"type": "library",
