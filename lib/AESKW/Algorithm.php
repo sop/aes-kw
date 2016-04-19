@@ -3,7 +3,7 @@
 namespace AESKW;
 
 
-abstract class Algorithm
+abstract class Algorithm implements AESKeyWrapAlgorithm
 {
 	/**
 	 * Default initial value
@@ -14,7 +14,7 @@ abstract class Algorithm
 	const DEFAULT_IV = "\xA6\xA6\xA6\xA6\xA6\xA6\xA6\xA6";
 	
 	/**
-	 * Alternative initial value for padding
+	 * High order bytes of the alternative initial value for padding
 	 *
 	 * @link https://tools.ietf.org/html/rfc5649#section-3
 	 * @var string
@@ -49,16 +49,20 @@ abstract class Algorithm
 	 */
 	public function __construct($iv = self::DEFAULT_IV) {
 		if (strlen($iv) != 8) {
-			throw new \UnexpectedValueException("IV length must be 64 bits");
+			throw new \UnexpectedValueException("IV size must be 64 bits");
 		}
 		$this->_iv = $iv;
 	}
 	
 	/**
-	 * Wrap key.
+	 * Wrap a key using given key encryption key.
 	 *
-	 * Key length must be a multiple of 8 octets. Use <b>wrapPad</b> to
-	 * wrap a key of arbitrary length.
+	 * Key length must be at least 64 bits (8 octets) and a multiple
+	 * of 64 bits (8 octets).
+	 * Use <i>wrapPad</i> to wrap a key of arbitrary length.
+	 *
+	 * Key encryption key must have a size of underlying AES algorithm,
+	 * ie. 128, 196 or 256 bits.
 	 *
 	 * @param string $key Key to wrap
 	 * @param string $kek Key encryption key
@@ -88,9 +92,9 @@ abstract class Algorithm
 	}
 	
 	/**
-	 * Unwrap key from ciphertext.
+	 * Unwrap a key from a ciphertext using given key encryption key.
 	 *
-	 * @param string $ciphertext Ciphertext on the wrapped key
+	 * @param string $ciphertext Ciphertext of the wrapped key
 	 * @param string $kek Key encryption key
 	 * @throws \UnexpectedValueException
 	 * @return string Unwrapped key
@@ -114,15 +118,22 @@ abstract class Algorithm
 	}
 	
 	/**
-	 * Wrap key of arbitrary length using padding.
+	 * Wrap a key of arbitrary length using given key encryption key.
 	 *
-	 * @link https://tools.ietf.org/html/rfc5649#section-4.1
+	 * This variant of wrapping does not place any restriction on key size.
+	 *
+	 * Key encryption key has the same restrictions as with <i>wrap</i> method.
+	 *
 	 * @param string $key Key to wrap
 	 * @param string $kek Key encryption key
 	 * @return string Ciphertext
 	 */
 	public function wrapPad($key, $kek) {
 		$len = strlen($key);
+		if (!$len) {
+			throw new \UnexpectedValueException(
+				"Key must have at least one octet");
+		}
 		// append padding
 		if (0 != $len % 8) {
 			$key = str_pad($key, $len + (8 - $len % 8), "\0", STR_PAD_RIGHT);
@@ -148,9 +159,12 @@ abstract class Algorithm
 	}
 	
 	/**
-	 * Unwrap padded ciphertext.
+	 * Unwrap a key from a padded ciphertext using given key encryption key.
 	 *
-	 * @param string $ciphertext Ciphertext
+	 * This variant of unwrapping must be used if the key was wrapped using
+	 * <i>wrapPad</i>.
+	 *
+	 * @param string $ciphertext Ciphertext of the wrapped and padded key
 	 * @param string $kek Key encryption key
 	 * @throws \UnexpectedValueException
 	 * @throws \RangeException
@@ -209,7 +223,7 @@ abstract class Algorithm
 	protected function _checkKEKSize($kek) {
 		$len = $this->_keySize();
 		if (strlen($kek) != $len) {
-			throw new \UnexpectedValueException("KEK length must be $len bytes");
+			throw new \UnexpectedValueException("KEK size must be $len bytes");
 		}
 		return $this;
 	}
@@ -303,8 +317,12 @@ abstract class Algorithm
 	 * @return string
 	 */
 	protected function _encrypt($kek, $block) {
-		return openssl_encrypt($block, $this->_cipherMethod(), $kek, 
+		$str = openssl_encrypt($block, $this->_cipherMethod(), $kek, 
 			OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING);
+		if (false === $str) {
+			throw new \RuntimeException("openssl_encrypt() failed");
+		}
+		return $str;
 	}
 	
 	/**
@@ -315,8 +333,12 @@ abstract class Algorithm
 	 * @return string
 	 */
 	protected function _decrypt($kek, $block) {
-		return openssl_decrypt($block, $this->_cipherMethod(), $kek, 
+		$str = openssl_decrypt($block, $this->_cipherMethod(), $kek, 
 			OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING);
+		if (false === $str) {
+			throw new \RuntimeException("openssl_decrypt() failed");
+		}
+		return $str;
 	}
 	
 	/**
