@@ -123,6 +123,25 @@ class AlgorithmTest extends PHPUnit_Framework_TestCase
 	}
 	
 	/**
+	 * @expectedException RuntimeException
+	 */
+	public function testWrapPadShortKEKFail() {
+		$algo = new AESKW128();
+		$algo->wrapPad(self::$_key16, self::$_key8);
+	}
+	
+	/**
+	 * @depends testWrapPad
+	 * @expectedException RuntimeException
+	 *
+	 * @param string $ciphertext
+	 */
+	public function testUnwrapPadShortKEKFail($ciphertext) {
+		$algo = new AESKW128();
+		$algo->unwrapPad($ciphertext, self::$_key8);
+	}
+	
+	/**
 	 * @dataProvider provideWrapPadCiphertext
 	 *
 	 * @param string $key
