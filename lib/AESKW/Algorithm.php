@@ -134,6 +134,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
 			throw new \UnexpectedValueException(
 				"Key must have at least one octet");
 		}
+		$this->_checkKEKSize($kek);
 		// append padding
 		if (0 != $len % 8) {
 			$key = str_pad($key, $len + (8 - $len % 8), "\0", STR_PAD_RIGHT);
@@ -175,6 +176,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
 			throw new \UnexpectedValueException(
 				"Ciphertext length must be a multiple of 64 bits");
 		}
+		$this->_checkKEKSize($kek);
 		$C = str_split($ciphertext, 8);
 		$n = count($C) - 1;
 		// if key consists of only one block, recover AIV and padded key as:
