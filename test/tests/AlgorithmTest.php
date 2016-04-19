@@ -15,7 +15,8 @@ class AlgorithmTest extends PHPUnit_Framework_TestCase
 	}
 	
 	public static function tearDownAfterClass() {
-
+		self::$_key8 = null;
+		self::$_key16 = null;
 	}
 	
 	public function testWrap() {
@@ -28,7 +29,7 @@ class AlgorithmTest extends PHPUnit_Framework_TestCase
 	/**
 	 * @depends testWrap
 	 *
-	 * @param unknown $ciphertext
+	 * @param string $ciphertext
 	 */
 	public function testUnwrap($ciphertext) {
 		$algo = new AESKW128();
@@ -105,11 +106,58 @@ class AlgorithmTest extends PHPUnit_Framework_TestCase
 	/**
 	 * @depends testWrapPad
 	 *
-	 * @param unknown $ciphertext
+	 * @param string $ciphertext
 	 */
 	public function testUnwrapPad($ciphertext) {
 		$algo = new AESKW128();
 		$key = $algo->unwrapPad($ciphertext, self::$_key16);
 		$this->assertEquals(self::$_key8, $key);
+	}
+	
+	/**
+	 * @expectedException RuntimeException
+	 */
+	public function testWrapPadEmptyKeyFail() {
+		$algo = new AESKW128();
+		$data = $algo->wrapPad("", self::$_key16);
+	}
+	
+	/**
+	 * @dataProvider provideWrapPadCiphertext
+	 *
+	 * @param string $key
+	 * @param int $blocks
+	 */
+	public function testWrapPadCiphertextLength($key, $blocks) {
+		$algo = new AESKW128();
+		$data = $algo->wrapPad($key, self::$_key16);
+		$this->assertEquals($blocks * 8, strlen($data));
+	}
+	
+	/**
+	 * @dataProvider provideWrapPadCiphertext
+	 *
+	 * @param string $key
+	 * @param int $blocks
+	 */
+	public function testWrapAndUnwrapWithPad($key, $blocks) {
+		$algo = new AESKW128();
+		$data = $algo->wrapPad($key, self::$_key16);
+		$result = $algo->unwrapPad($data, self::$_key16);
+		$this->assertEquals($key, $result);
+	}
+	
+	public function provideWrapPadCiphertext() {
+		return array(
+			/* @formatter:off */
+			["1", 2],
+			["1234567", 2],
+			["12345678", 2],
+			["123456781", 3],
+			["123456781234567", 3],
+			["1234567812345678", 3],
+			["12345678123456781", 4],
+			/* @formatter:on */
+		);
 	}
 }
