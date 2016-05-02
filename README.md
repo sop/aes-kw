@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/sop/aes-kw.svg?branch=master)](https://travis-ci.org/sop/aes-kw)
+[![License](https://poser.pugx.org/sop/aes-kw/license)](https://github.com/sop/aes-kw/blob/master/LICENSE)
 
 # AES Key Wrap
 A PHP library for AES Key Wrap
