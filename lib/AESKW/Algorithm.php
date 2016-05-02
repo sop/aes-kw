@@ -3,10 +3,15 @@
 namespace AESKW;
 
 
+/**
+ * Base class for AES key wrap algorithms with varying key sizes.
+ *
+ * @link https://tools.ietf.org/html/rfc3394
+ */
 abstract class Algorithm implements AESKeyWrapAlgorithm
 {
 	/**
-	 * Default initial value
+	 * Default initial value.
 	 *
 	 * @link https://tools.ietf.org/html/rfc3394#section-2.2.3.1
 	 * @var string
@@ -14,7 +19,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
 	const DEFAULT_IV = "\xA6\xA6\xA6\xA6\xA6\xA6\xA6\xA6";
 	
 	/**
-	 * High order bytes of the alternative initial value for padding
+	 * High order bytes of the alternative initial value for padding.
 	 *
 	 * @link https://tools.ietf.org/html/rfc5649#section-3
 	 * @var string
@@ -22,21 +27,21 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
 	const AIV_HI = "\xA6\x59\x59\xA6";
 	
 	/**
-	 * Initial value
+	 * Initial value.
 	 *
 	 * @var string $_iv
 	 */
 	protected $_iv;
 	
 	/**
-	 * Get OpenSSL cipher method
+	 * Get OpenSSL cipher method.
 	 *
 	 * @return string
 	 */
 	abstract protected function _cipherMethod();
 	
 	/**
-	 * Get key encryption key size
+	 * Get key encryption key size.
 	 *
 	 * @return int
 	 */
@@ -216,7 +221,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
 	}
 	
 	/**
-	 * Check KEK size
+	 * Check KEK size.
 	 *
 	 * @param string $kek
 	 * @throws \UnexpectedValueException
@@ -312,7 +317,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
 	}
 	
 	/**
-	 * Apply AES(K, W) operation (encrypt) to 64 bit block
+	 * Apply AES(K, W) operation (encrypt) to 64 bit block.
 	 *
 	 * @param string $kek
 	 * @param string $block
@@ -328,7 +333,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
 	}
 	
 	/**
-	 * Apply AES-1(K, W) operation (decrypt) to 64 bit block
+	 * Apply AES-1(K, W) operation (decrypt) to 64 bit block.
 	 *
 	 * @param string $kek
 	 * @param string $block
@@ -344,7 +349,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
 	}
 	
 	/**
-	 * Take 64 most significant bits from value
+	 * Take 64 most significant bits from value.
 	 *
 	 * @param string $val
 	 * @return string
@@ -354,7 +359,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
 	}
 	
 	/**
-	 * Take 64 least significant bits from value
+	 * Take 64 least significant bits from value.
 	 *
 	 * @param string $val
 	 * @return string
@@ -365,7 +370,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
 	
 	/**
 	 * Convert number to 64 bit unsigned integer octet string with
-	 * most significant bit first
+	 * most significant bit first.
 	 *
 	 * @param int $num
 	 * @return string

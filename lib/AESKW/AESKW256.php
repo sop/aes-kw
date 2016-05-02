@@ -4,7 +4,7 @@ namespace AESKW;
 
 
 /**
- * Implements AES key wrap with 256 bit key size
+ * Implements AES key wrap with 256 bit key size.
  */
 class AESKW256 extends Algorithm
 {
