@@ -54,7 +54,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
 	 */
 	public function __construct($iv = self::DEFAULT_IV) {
 		if (strlen($iv) != 8) {
-			throw new \UnexpectedValueException("IV size must be 64 bits");
+			throw new \UnexpectedValueException("IV size must be 64 bits.");
 		}
 		$this->_iv = $iv;
 	}
@@ -79,11 +79,11 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
 		// rfc3394 dictates n to be at least 2
 		if ($key_len < 16) {
 			throw new \UnexpectedValueException(
-				"Key length must be at least 16 octets");
+				"Key length must be at least 16 octets.");
 		}
 		if (0 !== $key_len % 8) {
 			throw new \UnexpectedValueException(
-				"Key length must be a multiple of 64 bits");
+				"Key length must be a multiple of 64 bits.");
 		}
 		$this->_checkKEKSize($kek);
 		// P = plaintext as 64 bit blocks
@@ -107,7 +107,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
 	public function unwrap($ciphertext, $kek) {
 		if (0 !== strlen($ciphertext) % 8) {
 			throw new \UnexpectedValueException(
-				"Ciphertext length must be a multiple of 64 bits");
+				"Ciphertext length must be a multiple of 64 bits.");
 		}
 		$this->_checkKEKSize($kek);
 		// C = ciphertext as 64 bit blocks with integrity check value prepended
@@ -115,7 +115,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
 		list($A, $R) = $this->_unwrapBlocks($C, $kek);
 		// check integrity value
 		if ($A != $this->_iv) {
-			throw new \UnexpectedValueException("Integrity check failed");
+			throw new \UnexpectedValueException("Integrity check failed.");
 		}
 		// output the plaintext
 		$P = array_slice($R, 1, null, true);
@@ -137,7 +137,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
 		$len = strlen($key);
 		if (!$len) {
 			throw new \UnexpectedValueException(
-				"Key must have at least one octet");
+				"Key must have at least one octet.");
 		}
 		$this->_checkKEKSize($kek);
 		// append padding
@@ -179,7 +179,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
 	public function unwrapPad($ciphertext, $kek) {
 		if (0 !== strlen($ciphertext) % 8) {
 			throw new \UnexpectedValueException(
-				"Ciphertext length must be a multiple of 64 bits");
+				"Ciphertext length must be a multiple of 64 bits.");
 		}
 		$this->_checkKEKSize($kek);
 		$C = str_split($ciphertext, 8);
@@ -198,14 +198,14 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
 		// check that MSB(32,A) = A65959A6
 		$iv = substr($A, 0, 4);
 		if ($iv != self::AIV_HI) {
-			throw new \UnexpectedValueException("Integrity check failed");
+			throw new \UnexpectedValueException("Integrity check failed.");
 		}
 		// extract mli
 		$mli = substr($A, -4);
 		$len = unpack("N1", $mli)[1];
 		// check under and overflow
 		if ($len <= 8 * ($n - 1) || $len > 8 * $n) {
-			throw new \RangeException("Invalid message length");
+			throw new \UnexpectedValueException("Invalid message length.");
 		}
 		$output = implode("", $P);
 		// if key is padded
@@ -213,7 +213,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
 		if ($b < 8) {
 			// check that padding consists of zeroes
 			if (substr($output, -$b) != str_repeat("\0", $b)) {
-				throw new \UnexpectedValueException("Invalid padding");
+				throw new \UnexpectedValueException("Invalid padding.");
 			}
 		}
 		// remove padding and return unwrapped key
@@ -230,7 +230,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
 	protected function _checkKEKSize($kek) {
 		$len = $this->_keySize();
 		if (strlen($kek) != $len) {
-			throw new \UnexpectedValueException("KEK size must be $len bytes");
+			throw new \UnexpectedValueException("KEK size must be $len bytes.");
 		}
 		return $this;
 	}
@@ -293,7 +293,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
 	protected function _unwrapBlocks(array $C, $kek) {
 		$n = count($C) - 1;
 		if (!$n) {
-			throw new \UnexpectedValueException("No blocks");
+			throw new \UnexpectedValueException("No blocks.");
 		}
 		// Set A = C[0]
 		$A = $C[0];
@@ -327,7 +327,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
 		$str = openssl_encrypt($block, $this->_cipherMethod(), $kek, 
 			OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING);
 		if (false === $str) {
-			throw new \RuntimeException("openssl_encrypt() failed");
+			throw new \RuntimeException("openssl_encrypt() failed.");
 		}
 		return $str;
 	}
@@ -343,7 +343,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
 		$str = openssl_decrypt($block, $this->_cipherMethod(), $kek, 
 			OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING);
 		if (false === $str) {
-			throw new \RuntimeException("openssl_decrypt() failed");
+			throw new \RuntimeException("openssl_decrypt() failed.");
 		}
 		return $str;
 	}
