@@ -1,6 +1,7 @@
 <?php
 
 use AESKW\AESKW128;
+use AESKW\Algorithm;
 
 
 class AlgorithmTest extends PHPUnit_Framework_TestCase
@@ -19,11 +20,63 @@ class AlgorithmTest extends PHPUnit_Framework_TestCase
 		self::$_key16 = null;
 	}
 	
+	public function testCustomIV() {
+		$algo = new AESKW128(hex2bin("0011223344556677"));
+		$this->assertInstanceOf(Algorithm::class, $algo);
+	}
+	
+	/**
+	 * @expectedException UnexpectedValueException
+	 */
+	public function testIVFail() {
+		new AESKW128("");
+	}
+	
 	public function testWrap() {
 		$algo = new AESKW128();
 		$data = $algo->wrap(self::$_key16, self::$_key16);
 		$this->assertTrue(is_string($data));
 		return $data;
+	}
+	
+	/**
+	 * @expectedException UnexpectedValueException
+	 */
+	public function testWrapShortKeyFail() {
+		$algo = new AESKW128();
+		$algo->wrap(self::$_key8, self::$_key16);
+	}
+	
+	/**
+	 * @expectedException UnexpectedValueException
+	 */
+	public function testWrapEmptyKeyFail() {
+		$algo = new AESKW128();
+		$algo->wrap("", self::$_key16);
+	}
+	
+	/**
+	 * @expectedException UnexpectedValueException
+	 */
+	public function testWrapUnalignedKeyFail() {
+		$algo = new AESKW128();
+		$algo->wrap(self::$_key16 . "x", self::$_key16);
+	}
+	
+	/**
+	 * @expectedException UnexpectedValueException
+	 */
+	public function testWrapShortKEKFail() {
+		$algo = new AESKW128();
+		$algo->wrap(self::$_key16, self::$_key8);
+	}
+	
+	/**
+	 * @expectedException UnexpectedValueException
+	 */
+	public function testWrapEmptyKEKFail() {
+		$algo = new AESKW128();
+		$algo->wrap(self::$_key16, "");
 	}
 	
 	/**
@@ -38,40 +91,8 @@ class AlgorithmTest extends PHPUnit_Framework_TestCase
 	}
 	
 	/**
-	 * @expectedException RuntimeException
-	 */
-	public function testWrapShortKeyFail() {
-		$algo = new AESKW128();
-		$algo->wrap(self::$_key8, self::$_key16);
-	}
-	
-	/**
-	 * @expectedException RuntimeException
-	 */
-	public function testWrapEmptyKeyFail() {
-		$algo = new AESKW128();
-		$algo->wrap("", self::$_key16);
-	}
-	
-	/**
-	 * @expectedException RuntimeException
-	 */
-	public function testWrapShortKEKFail() {
-		$algo = new AESKW128();
-		$algo->wrap(self::$_key16, self::$_key8);
-	}
-	
-	/**
-	 * @expectedException RuntimeException
-	 */
-	public function testWrapEmptyKEKFail() {
-		$algo = new AESKW128();
-		$algo->wrap(self::$_key16, "");
-	}
-	
-	/**
 	 * @depends testWrap
-	 * @expectedException RuntimeException
+	 * @expectedException UnexpectedValueException
 	 *
 	 * @param string $ciphertext
 	 */
@@ -81,15 +102,23 @@ class AlgorithmTest extends PHPUnit_Framework_TestCase
 	}
 	
 	/**
-	 * @expectedException RuntimeException
+	 * @expectedException UnexpectedValueException
 	 */
 	public function testUnwrapInvalidCiphertextFail() {
+		$algo = new AESKW128();
+		$algo->unwrap("0011223344556677", self::$_key16);
+	}
+	
+	/**
+	 * @expectedException UnexpectedValueException
+	 */
+	public function testUnwrapUnalignedCiphertextFail() {
 		$algo = new AESKW128();
 		$algo->unwrap("nope", self::$_key16);
 	}
 	
 	/**
-	 * @expectedException RuntimeException
+	 * @expectedException UnexpectedValueException
 	 */
 	public function testUnwrapEmptyCiphertextFail() {
 		$algo = new AESKW128();
@@ -104,6 +133,22 @@ class AlgorithmTest extends PHPUnit_Framework_TestCase
 	}
 	
 	/**
+	 * @expectedException UnexpectedValueException
+	 */
+	public function testWrapPadEmptyKeyFail() {
+		$algo = new AESKW128();
+		$data = $algo->wrapPad("", self::$_key16);
+	}
+	
+	/**
+	 * @expectedException UnexpectedValueException
+	 */
+	public function testWrapPadShortKEKFail() {
+		$algo = new AESKW128();
+		$algo->wrapPad(self::$_key16, self::$_key8);
+	}
+	
+	/**
 	 * @depends testWrapPad
 	 *
 	 * @param string $ciphertext
@@ -115,30 +160,48 @@ class AlgorithmTest extends PHPUnit_Framework_TestCase
 	}
 	
 	/**
-	 * @expectedException RuntimeException
+	 * @expectedException UnexpectedValueException
 	 */
-	public function testWrapPadEmptyKeyFail() {
+	public function testUnwrapPadInvalidCiphertextFail() {
 		$algo = new AESKW128();
-		$data = $algo->wrapPad("", self::$_key16);
+		$algo->unwrapPad("0011223344556677", self::$_key16);
 	}
 	
 	/**
-	 * @expectedException RuntimeException
+	 * @expectedException UnexpectedValueException
 	 */
-	public function testWrapPadShortKEKFail() {
+	public function testUnwrapPadUnalignedCiphertextFail() {
 		$algo = new AESKW128();
-		$algo->wrapPad(self::$_key16, self::$_key8);
+		$algo->unwrapPad("nope", self::$_key16);
 	}
 	
 	/**
 	 * @depends testWrapPad
-	 * @expectedException RuntimeException
+	 * @expectedException UnexpectedValueException
 	 *
 	 * @param string $ciphertext
 	 */
 	public function testUnwrapPadShortKEKFail($ciphertext) {
 		$algo = new AESKW128();
 		$algo->unwrapPad($ciphertext, self::$_key8);
+	}
+	
+	/**
+	 * @expectedException UnexpectedValueException
+	 */
+	public function testUnwrapPadInvalidPaddingFail() {
+		$ciphertext = hex2bin("3b7e2f6360d0923d031a2d73eb6c4126");
+		$algo = new AESKW128();
+		$algo->unwrapPad($ciphertext, self::$_key16);
+	}
+	
+	/**
+	 * @expectedException UnexpectedValueException
+	 */
+	public function testUnwrapPadInvalidLengthFail() {
+		$ciphertext = hex2bin("bba440cb70fbb173ef5b659ffae9cb08");
+		$algo = new AESKW128();
+		$algo->unwrapPad($ciphertext, self::$_key16);
 	}
 	
 	/**
