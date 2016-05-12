@@ -242,4 +242,26 @@ class AlgorithmTest extends PHPUnit_Framework_TestCase
 			/* @formatter:on */
 		);
 	}
+	
+	/**
+	 * @expectedException RuntimeException
+	 */
+	public function testEncryptFail() {
+		$algo = new AESKW128();
+		$cls = new ReflectionClass($algo);
+		$mtd = $cls->getMethod("_encrypt");
+		$mtd->setAccessible(true);
+		$mtd->invoke($algo, "x", "x");
+	}
+	
+	/**
+	 * @expectedException RuntimeException
+	 */
+	public function testDecryptFail() {
+		$algo = new AESKW128();
+		$cls = new ReflectionClass($algo);
+		$mtd = $cls->getMethod("_decrypt");
+		$mtd->setAccessible(true);
+		$mtd->invoke($algo, "x", "x");
+	}
 }
