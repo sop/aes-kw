@@ -321,13 +321,15 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
 	 *
 	 * @param string $kek
 	 * @param string $block
+	 * @throws \RuntimeException If encrypt fails
 	 * @return string
 	 */
 	protected function _encrypt($kek, $block) {
 		$str = openssl_encrypt($block, $this->_cipherMethod(), $kek, 
 			OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING);
 		if (false === $str) {
-			throw new \RuntimeException("openssl_encrypt() failed.");
+			throw new \RuntimeException(
+				"openssl_encrypt() failed: " . $this->_getLastOpenSSLError());
 		}
 		return $str;
 	}
@@ -337,15 +339,30 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
 	 *
 	 * @param string $kek
 	 * @param string $block
+	 * @throws \RuntimeException If decrypt fails
 	 * @return string
 	 */
 	protected function _decrypt($kek, $block) {
 		$str = openssl_decrypt($block, $this->_cipherMethod(), $kek, 
 			OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING);
 		if (false === $str) {
-			throw new \RuntimeException("openssl_decrypt() failed.");
+			throw new \RuntimeException(
+				"openssl_decrypt() failed: " . $this->_getLastOpenSSLError());
 		}
 		return $str;
+	}
+	
+	/**
+	 * Get latest OpenSSL error message.
+	 *
+	 * @return string
+	 */
+	protected function _getLastOpenSSLError() {
+		$msg = null;
+		while (false !== ($err = openssl_error_string())) {
+			$msg = $err;
+		}
+		return $msg;
 	}
 	
 	/**
