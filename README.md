@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/sop/aes-kw.svg?branch=master)](https://travis-ci.org/sop/aes-kw)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/sop/aes-kw/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/sop/aes-kw/?branch=master)
 [![Coverage Status](https://coveralls.io/repos/github/sop/aes-kw/badge.svg?branch=master)](https://coveralls.io/github/sop/aes-kw?branch=master)
 [![License](https://poser.pugx.org/sop/aes-kw/license)](https://github.com/sop/aes-kw/blob/master/LICENSE)
 
