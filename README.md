@@ -20,12 +20,12 @@ This library is available on
 ## Code examples
 Here are some simple usage examples. Namespaces are omitted for brevity.
 
-### Wrap a 64 bit key with a 128 bit KEK
-Wrap a key of 16 bytes using a 32 byte key encryption key.
+### Wrap a 128 bit key with AES-128
+Wrap a key of 16 bytes using a 16-byte key encryption key.
 
 ```php
-$kek = hex2bin("00112233445566778899aabbccddeeff");
-$key = "MySecretPassword";
+$kek = "0123456789abcdef"; // 128-bit key encryption key
+$key = "MySecretPassword"; // key to encrypt
 $algo = new AESKW128();
 $ciphertext = $algo->wrap($key, $kek);
 echo bin2hex($ciphertext);
@@ -33,11 +33,11 @@ echo bin2hex($ciphertext);
 
 Outputs:
 
-    666e1b1c21b6bbac9a0c8cc1cc169f67db978a8b4c9d86e5
+    89efdbc3501f1f5e952a4bbae1329c9f1a47b9fd61b48dee
 
 ### Unwrap a key
 Unwrap a key from previous example. `$kek` and `$algo` variables are the same.
-`$ciphertext` variable contains the output from wrapping procedure.
+`$ciphertext` variable contains the output from a wrapping procedure.
 
 ```php
 $key = $algo->unwrap($ciphertext, $kek);
@@ -48,12 +48,12 @@ Outputs:
 
     MySecretPassword
 
-### Wrap a 30 byte passphrase with a 192 bit KEK
-Wrapping a key that is not a multiple of 64 bits require padding.
+### Wrap an arbitrary length passphrase with AES-192
+Wrapping a key that is not a multiple of 64 bits requires padding.
 
 ```php
-$kek = hex2bin("00112233445566778899aabbccddeeff0011223344556677");
-$key = "My hovercraft is full of eels.";
+$kek = "012345678901234567890123"; // 192-bit key encryption key
+$key = "My hovercraft is full of eels."; // passphrase to encrypt
 $algo = new AESKW192();
 $ciphertext = $algo->wrapPad($key, $kek);
 echo bin2hex($ciphertext);
@@ -61,7 +61,7 @@ echo bin2hex($ciphertext);
 
 Outputs:
 
-    be9d339993f5b47ad501e258023e3e06d3247ebcc972ea4a63ba205f4eec2938bedf75b4c674ba96
+    f319811450badfe4385b5534bf26fa6f9fdcd1a593b3ae6b707f15c1015bbf3faf58619818bd8784
 
 ### Unwrap a key with padding
 Key that was wrapped with padding must be unwrapped with `unwrapPad`.
