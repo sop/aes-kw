@@ -8,7 +8,8 @@ namespace AESKW;
  *
  * @link https://tools.ietf.org/html/rfc3394
  */
-abstract class Algorithm implements AESKeyWrapAlgorithm
+abstract class Algorithm implements 
+	AESKeyWrapAlgorithm
 {
 	/**
 	 * Default initial value.
@@ -182,19 +183,9 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
 				"Ciphertext length must be a multiple of 64 bits.");
 		}
 		$this->_checkKEKSize($kek);
+		// split to blocks
 		$C = str_split($ciphertext, 8);
-		$n = count($C) - 1;
-		// if key consists of only one block, recover AIV and padded key as:
-		// A | P[1] = DEC(K, C[0] | C[1])
-		if ($n == 1) {
-			$P = str_split($this->_decrypt($kek, $C[0] . $C[1]), 8);
-			$A = $P[0];
-			unset($P[0]);
-		} else {
-			// apply normal unwrapping
-			list($A, $R) = $this->_unwrapBlocks($C, $kek);
-			$P = array_slice($R, 1, null, true);
-		}
+		list($P, $A) = $this->_unwrapPaddedBlocks($C, $kek);
 		// check that MSB(32,A) = A65959A6
 		$iv = substr($A, 0, 4);
 		if ($iv != self::AIV_HI) {
@@ -204,7 +195,8 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
 		$mli = substr($A, -4);
 		$len = unpack("N1", $mli)[1];
 		// check under and overflow
-		if ($len <= 8 * ($n - 1) || $len > 8 * $n) {
+		$n = count($P);
+		if (8 * ($n - 1) >= $len || $len > 8 * $n) {
 			throw new \UnexpectedValueException("Invalid message length.");
 		}
 		$output = implode("", $P);
@@ -241,10 +233,12 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
 	 * Uses alternative version of the key wrap procedure described in the RFC.
 	 *
 	 * @link https://tools.ietf.org/html/rfc3394#section-2.2.1
-	 * @param string[] $P Plaintext, n 64-bit values {P1, P2, ..., Pn}
+	 * @param string[] $P Plaintext, n 64-bit values <code>{P1, P2, ...,
+	 *        Pn}</code>
 	 * @param string $kek Key encryption key
 	 * @param string $iv Initial value
-	 * @return string[] Ciphertext, (n+1) 64-bit values {C0, C1, ..., Cn}
+	 * @return string[] Ciphertext, (n+1) 64-bit values <code>{C0, C1, ...,
+	 *         Cn}</code>
 	 */
 	protected function _wrapBlocks(array $P, $kek, $iv) {
 		$n = count($P);
@@ -277,6 +271,31 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
 	}
 	
 	/**
+	 * Unwrap the padded ciphertext producing plaintext and integrity value.
+	 *
+	 * @param string[] $C Ciphertext, (n+1) 64-bit values <code>{C0, C1, ...,
+	 *        Cn}</code>
+	 * @param string $kek Encryption key
+	 * @return array Tuple of plaintext <code>P</code> and integrity value
+	 *         <code>A</code>
+	 */
+	protected function _unwrapPaddedBlocks(array $C, $kek) {
+		$n = count($C) - 1;
+		// if key consists of only one block, recover AIV and padded key as:
+		// A | P[1] = DEC(K, C[0] | C[1])
+		if ($n == 1) {
+			$P = str_split($this->_decrypt($kek, $C[0] . $C[1]), 8);
+			$A = $P[0];
+			unset($P[0]);
+		} else {
+			// apply normal unwrapping
+			list($A, $R) = $this->_unwrapBlocks($C, $kek);
+			$P = array_slice($R, 1, null, true);
+		}
+		return [$P, $A];
+	}
+	
+	/**
 	 * Apply Key Unwrap to data blocks.
 	 *
 	 * Uses the index based version of key unwrap procedure
@@ -285,10 +304,12 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
 	 * Does not compute step 3.
 	 *
 	 * @link https://tools.ietf.org/html/rfc3394#section-2.2.2
-	 * @param string[] $C Ciphertext, (n+1) 64-bit values {C0, C1, ..., Cn}
+	 * @param string[] $C Ciphertext, (n+1) 64-bit values <code>{C0, C1, ...,
+	 *        Cn}</code>
 	 * @param string $kek Key encryption key
 	 * @throws \UnexpectedValueException
-	 * @return array Tuple of A and R
+	 * @return array Tuple of integrity value <code>A</code> and register
+	 *         <code>R</code>
 	 */
 	protected function _unwrapBlocks(array $C, $kek) {
 		$n = count($C) - 1;
