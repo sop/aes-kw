@@ -183,33 +183,13 @@ abstract class Algorithm implements
 				"Ciphertext length must be a multiple of 64 bits.");
 		}
 		$this->_checkKEKSize($kek);
-		// split to blocks
-		$C = str_split($ciphertext, 8);
-		list($P, $A) = $this->_unwrapPaddedBlocks($C, $kek);
-		// check that MSB(32,A) = A65959A6
-		$iv = substr($A, 0, 4);
-		if ($iv != self::AIV_HI) {
-			throw new \UnexpectedValueException("Integrity check failed.");
-		}
-		// extract mli
-		$mli = substr($A, -4);
-		$len = unpack("N1", $mli)[1];
-		// check under and overflow
-		$n = count($P);
-		if (8 * ($n - 1) >= $len || $len > 8 * $n) {
-			throw new \UnexpectedValueException("Invalid message length.");
-		}
-		$output = implode("", $P);
-		// if key is padded
-		$b = 8 - ($len % 8);
-		if ($b < 8) {
-			// check that padding consists of zeroes
-			if (substr($output, -$b) != str_repeat("\0", $b)) {
-				throw new \UnexpectedValueException("Invalid padding.");
-			}
-		}
+		list($P, $A) = $this->_unwrapPaddedCiphertext($ciphertext, $kek);
+		// check message integrity
+		$this->_checkPaddedIntegrity($A);
+		// verify padding
+		$len = $this->_verifyPadding($P, $A);
 		// remove padding and return unwrapped key
-		return substr($output, 0, $len);
+		return substr(implode("", $P), 0, $len);
 	}
 	
 	/**
@@ -273,13 +253,14 @@ abstract class Algorithm implements
 	/**
 	 * Unwrap the padded ciphertext producing plaintext and integrity value.
 	 *
-	 * @param string[] $C Ciphertext, (n+1) 64-bit values <code>{C0, C1, ...,
-	 *        Cn}</code>
+	 * @param string $ciphertext Ciphertext
 	 * @param string $kek Encryption key
-	 * @return array Tuple of plaintext <code>P</code> and integrity value
-	 *         <code>A</code>
+	 * @return array Tuple of plaintext <code>{P1, P2, ..., Pn}</code> and
+	 *         integrity value <code>A</code>
 	 */
-	protected function _unwrapPaddedBlocks(array $C, $kek) {
+	protected function _unwrapPaddedCiphertext($ciphertext, $kek) {
+		// split to blocks
+		$C = str_split($ciphertext, 8);
 		$n = count($C) - 1;
 		// if key consists of only one block, recover AIV and padded key as:
 		// A | P[1] = DEC(K, C[0] | C[1])
@@ -335,6 +316,50 @@ abstract class Algorithm implements
 			}
 		}
 		return array($A, $R);
+	}
+	
+	/**
+	 * Check that the integrity check value of the padded key is correct.
+	 *
+	 * @param string $A
+	 * @throws \UnexpectedValueException
+	 */
+	protected function _checkPaddedIntegrity($A) {
+		// check that MSB(32,A) = A65959A6
+		if (substr($A, 0, 4) != self::AIV_HI) {
+			throw new \UnexpectedValueException("Integrity check failed.");
+		}
+	}
+	
+	/**
+	 * Verify that the padding of the plaintext is valid.
+	 *
+	 * @param array $P Plaintext, n 64-bit values <code>{P1, P2, ...,
+	 *        Pn}</code>
+	 * @param string $A Integrity check value
+	 * @throws \UnexpectedValueException
+	 * @return int Message length without padding
+	 */
+	protected function _verifyPadding(array $P, $A) {
+		// extract mli
+		$mli = substr($A, -4);
+		$len = unpack("N1", $mli)[1];
+		// check under and overflow
+		$n = count($P);
+		if (8 * ($n - 1) >= $len || $len > 8 * $n) {
+			throw new \UnexpectedValueException("Invalid message length.");
+		}
+		// if key is padded
+		$b = 8 - ($len % 8);
+		if ($b < 8) {
+			// last block (note that the first index in P is 1)
+			$Pn = $P[$n];
+			// check that padding consists of zeroes
+			if (substr($Pn, -$b) != str_repeat("\0", $b)) {
+				throw new \UnexpectedValueException("Invalid padding.");
+			}
+		}
+		return $len;
 	}
 	
 	/**
