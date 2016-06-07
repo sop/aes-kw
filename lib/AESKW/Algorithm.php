@@ -72,7 +72,7 @@ abstract class Algorithm implements
 	 *
 	 * @param string $key Key to wrap
 	 * @param string $kek Key encryption key
-	 * @throws \UnexpectedValueException
+	 * @throws \UnexpectedValueException If the key length is invalid
 	 * @return string Ciphertext
 	 */
 	public function wrap($key, $kek) {
@@ -102,7 +102,7 @@ abstract class Algorithm implements
 	 *
 	 * @param string $ciphertext Ciphertext of the wrapped key
 	 * @param string $kek Key encryption key
-	 * @throws \UnexpectedValueException
+	 * @throws \UnexpectedValueException If the ciphertext is invalid
 	 * @return string Unwrapped key
 	 */
 	public function unwrap($ciphertext, $kek) {
@@ -132,6 +132,7 @@ abstract class Algorithm implements
 	 *
 	 * @param string $key Key to wrap
 	 * @param string $kek Key encryption key
+	 * @throws \UnexpectedValueException If the key length is invalid
 	 * @return string Ciphertext
 	 */
 	public function wrapPad($key, $kek) {
@@ -173,8 +174,7 @@ abstract class Algorithm implements
 	 *
 	 * @param string $ciphertext Ciphertext of the wrapped and padded key
 	 * @param string $kek Key encryption key
-	 * @throws \UnexpectedValueException
-	 * @throws \RangeException
+	 * @throws \UnexpectedValueException If the ciphertext is invalid
 	 * @return string Unwrapped key
 	 */
 	public function unwrapPad($ciphertext, $kek) {
@@ -399,7 +399,7 @@ abstract class Algorithm implements
 	}
 	
 	/**
-	 * Get latest OpenSSL error message.
+	 * Get the latest OpenSSL error message.
 	 *
 	 * @return string
 	 */
