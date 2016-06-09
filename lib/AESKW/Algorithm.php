@@ -8,8 +8,7 @@ namespace AESKW;
  *
  * @link https://tools.ietf.org/html/rfc3394
  */
-abstract class Algorithm implements 
-	AESKeyWrapAlgorithm
+abstract class Algorithm implements AESKeyWrapAlgorithm
 {
 	/**
 	 * Default initial value.
@@ -136,23 +135,16 @@ abstract class Algorithm implements
 	 * @return string Ciphertext
 	 */
 	public function wrapPad($key, $kek) {
-		$len = strlen($key);
-		if (!$len) {
+		if (!strlen($key)) {
 			throw new \UnexpectedValueException(
 				"Key must have at least one octet.");
 		}
 		$this->_checkKEKSize($kek);
-		// append padding
-		if (0 != $len % 8) {
-			$key = str_pad($key, $len + (8 - $len % 8), "\0", STR_PAD_RIGHT);
-		}
-		// compute AIV
-		$mli = pack("N", $len);
-		$aiv = self::AIV_HI . $mli;
-		// if key length was less than 8 octets (padded key contains
-		// exactly 8 octets), let the ciphertext be:
+		list($key, $aiv) = $this->_padKey($key);
+		// If the padded key contains exactly eight octets,
+		// let the ciphertext be:
 		// C[0] | C[1] = ENC(K, A | P[1]).
-		if ($len <= 8) {
+		if (8 == strlen($key)) {
 			return $this->_encrypt($kek, $aiv . $key);
 		}
 		// build plaintext blocks and apply normal wrapping with AIV as an
@@ -316,6 +308,24 @@ abstract class Algorithm implements
 			}
 		}
 		return array($A, $R);
+	}
+	
+	/**
+	 * Pad a key with zeroes and compute alternative initial value.
+	 *
+	 * @param string $key Key
+	 * @return array Tuple of padded key and AIV
+	 */
+	protected function _padKey($key) {
+		$len = strlen($key);
+		// append padding
+		if (0 != $len % 8) {
+			$key .= str_repeat("\0", 8 - $len % 8);
+		}
+		// compute AIV
+		$mli = pack("N", $len);
+		$aiv = self::AIV_HI . $mli;
+		return [$key, $aiv];
 	}
 	
 	/**
