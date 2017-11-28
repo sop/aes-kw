@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace AESKW;
+namespace Sop\AESKW;
 
 /**
  * Interface for AES Key Wrap Algorithm (RFC 3394) and

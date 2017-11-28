@@ -21,7 +21,7 @@ class RFC5649ExamplesTest extends TestCase
         $key = hex2bin(preg_replace('/\s+/', '', $key));
         $result = hex2bin(preg_replace('/\s+/', '', $result));
         $bits = strlen($kek) * 8;
-        $cls = 'AESKW\AESKW' . $bits;
+        $cls = 'Sop\AESKW\AESKW' . $bits;
         $algo = new $cls();
         $ciphertext = $algo->wrapPad($key, $kek);
         $this->assertEquals($result, $ciphertext, "Key Wrap");

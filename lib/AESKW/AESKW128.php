@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace AESKW;
+namespace Sop\AESKW;
 
 /**
  * Implements AES key wrap with 128 bit key size.

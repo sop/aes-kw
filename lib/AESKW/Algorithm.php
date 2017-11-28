@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace AESKW;
+namespace Sop\AESKW;
 
 /**
  * Base class for AES key wrap algorithms with varying key sizes.

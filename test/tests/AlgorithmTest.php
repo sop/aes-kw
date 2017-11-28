@@ -1,8 +1,8 @@
 <?php
 
-use AESKW\AESKW128;
-use AESKW\Algorithm;
 use PHPUnit\Framework\TestCase;
+use Sop\AESKW\AESKW128;
+use Sop\AESKW\Algorithm;
 
 class AlgorithmTest extends TestCase
 {

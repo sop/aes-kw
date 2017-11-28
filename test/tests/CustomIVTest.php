@@ -1,7 +1,7 @@
 <?php
 
-use AESKW\AESKW128;
 use PHPUnit\Framework\TestCase;
+use Sop\AESKW\AESKW128;
 
 class CustomIVTest extends TestCase
 {

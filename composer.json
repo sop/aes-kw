@@ -4,7 +4,11 @@
 	"homepage": "https://github.com/sop/aes-kw",
 	"license": "MIT",
 	"type": "library",
-	"keywords": ["aes", "key wrap", "aes key wrap"],
+	"keywords": [
+		"aes",
+		"key wrap",
+		"aes key wrap"
+	],
 	"authors": [
 		{
 			"name": "Joni Eskelinen",
@@ -21,7 +25,7 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"AESKW\\": "lib/AESKW/"
+			"Sop\\AESKW\\": "lib/AESKW/"
 		}
 	}
 }
