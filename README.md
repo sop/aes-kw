@@ -13,6 +13,11 @@ support.
 
 Supports AES key sizes of 128, 192 and 256 bits.
 
+## Requirements
+
+-   PHP >=7.0
+-   openssl
+
 ## Installation
 
 This library is available on
