@@ -1,10 +1,12 @@
 <?php
 
+use PHPUnit\Framework\TestCase;
+
 /**
  *
  * @link https://tools.ietf.org/html/rfc5649#section-6
  */
-class RFC5649ExamplesTest extends PHPUnit_Framework_TestCase
+class RFC5649ExamplesTest extends TestCase
 {
     /**
      * @dataProvider provider

@@ -2,8 +2,9 @@
 
 use AESKW\AESKW128;
 use AESKW\Algorithm;
+use PHPUnit\Framework\TestCase;
 
-class AlgorithmTest extends PHPUnit_Framework_TestCase
+class AlgorithmTest extends TestCase
 {
     private static $_key8;
     

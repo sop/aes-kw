@@ -1,8 +1,9 @@
 <?php
 
 use AESKW\AESKW128;
+use PHPUnit\Framework\TestCase;
 
-class CustomIVTest extends PHPUnit_Framework_TestCase
+class CustomIVTest extends TestCase
 {
     const IV = "1122334466778899";
     

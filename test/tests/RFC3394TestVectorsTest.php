@@ -1,10 +1,12 @@
 <?php
 
+use PHPUnit\Framework\TestCase;
+
 /**
  *
  * @link https://tools.ietf.org/html/rfc3394#section-4
  */
-class RFC3394TestVectorsTest extends PHPUnit_Framework_TestCase
+class RFC3394TestVectorsTest extends TestCase
 {
     /**
      * @dataProvider provider
