@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace AESKW;
 
 /**
@@ -11,7 +13,7 @@ class AESKW256 extends Algorithm
      *
      * {@inheritdoc}
      */
-    protected function _cipherMethod()
+    protected function _cipherMethod(): string
     {
         return "AES-256-ECB";
     }
@@ -20,7 +22,7 @@ class AESKW256 extends Algorithm
      *
      * {@inheritdoc}
      */
-    protected function _keySize()
+    protected function _keySize(): int
     {
         return 32;
     }

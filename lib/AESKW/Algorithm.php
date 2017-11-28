@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace AESKW;
 
 /**
@@ -37,21 +39,21 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
      *
      * @return string
      */
-    abstract protected function _cipherMethod();
+    abstract protected function _cipherMethod(): string;
     
     /**
      * Get key encryption key size.
      *
      * @return int
      */
-    abstract protected function _keySize();
+    abstract protected function _keySize(): int;
     
     /**
      * Constructor.
      *
      * @param string $iv Initial value
      */
-    public function __construct($iv = self::DEFAULT_IV)
+    public function __construct(string $iv = self::DEFAULT_IV)
     {
         if (strlen($iv) != 8) {
             throw new \UnexpectedValueException("IV size must be 64 bits.");
@@ -74,7 +76,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
      * @throws \UnexpectedValueException If the key length is invalid
      * @return string Ciphertext
      */
-    public function wrap($key, $kek)
+    public function wrap(string $key, string $kek): string
     {
         $key_len = strlen($key);
         // rfc3394 dictates n to be at least 2
@@ -105,7 +107,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
      * @throws \UnexpectedValueException If the ciphertext is invalid
      * @return string Unwrapped key
      */
-    public function unwrap($ciphertext, $kek)
+    public function unwrap(string $ciphertext, string $kek): string
     {
         if (0 !== strlen($ciphertext) % 8) {
             throw new \UnexpectedValueException(
@@ -136,7 +138,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
      * @throws \UnexpectedValueException If the key length is invalid
      * @return string Ciphertext
      */
-    public function wrapPad($key, $kek)
+    public function wrapPad(string $key, string $kek): string
     {
         if (!strlen($key)) {
             throw new \UnexpectedValueException(
@@ -172,7 +174,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
      * @throws \UnexpectedValueException If the ciphertext is invalid
      * @return string Unwrapped key
      */
-    public function unwrapPad($ciphertext, $kek)
+    public function unwrapPad(string $ciphertext, string $kek): string
     {
         if (0 !== strlen($ciphertext) % 8) {
             throw new \UnexpectedValueException(
@@ -195,7 +197,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
      * @throws \UnexpectedValueException
      * @return self
      */
-    protected function _checkKEKSize($kek)
+    protected function _checkKEKSize(string $kek): self
     {
         $len = $this->_keySize();
         if (strlen($kek) != $len) {
@@ -217,7 +219,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
      * @return string[] Ciphertext, (n+1) 64-bit values <code>{C0, C1, ...,
      *         Cn}</code>
      */
-    protected function _wrapBlocks(array $P, $kek, $iv)
+    protected function _wrapBlocks(array $P, string $kek, string $iv): array
     {
         $n = count($P);
         // Set A = IV
@@ -256,7 +258,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
      * @return array Tuple of plaintext <code>{P1, P2, ..., Pn}</code> and
      *         integrity value <code>A</code>
      */
-    protected function _unwrapPaddedCiphertext($ciphertext, $kek)
+    protected function _unwrapPaddedCiphertext(string $ciphertext, string $kek): array
     {
         // split to blocks
         $C = str_split($ciphertext, 8);
@@ -291,7 +293,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
      * @return array Tuple of integrity value <code>A</code> and register
      *         <code>R</code>
      */
-    protected function _unwrapBlocks(array $C, $kek)
+    protected function _unwrapBlocks(array $C, string $kek): array
     {
         $n = count($C) - 1;
         if (!$n) {
@@ -324,7 +326,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
      * @param string $key Key
      * @return array Tuple of padded key and AIV
      */
-    protected function _padKey($key)
+    protected function _padKey(string $key): array
     {
         $len = strlen($key);
         // append padding
@@ -343,7 +345,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
      * @param string $A
      * @throws \UnexpectedValueException
      */
-    protected function _checkPaddedIntegrity($A)
+    protected function _checkPaddedIntegrity(string $A)
     {
         // check that MSB(32,A) = A65959A6
         if (substr($A, 0, 4) != self::AIV_HI) {
@@ -360,7 +362,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
      * @throws \UnexpectedValueException
      * @return int Message length without padding
      */
-    protected function _verifyPadding(array $P, $A)
+    protected function _verifyPadding(array $P, string $A): int
     {
         // extract mli
         $mli = substr($A, -4);
@@ -391,7 +393,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
      * @throws \RuntimeException If encrypt fails
      * @return string
      */
-    protected function _encrypt($kek, $block)
+    protected function _encrypt(string $kek, string $block): string
     {
         $str = openssl_encrypt($block, $this->_cipherMethod(), $kek,
             OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING);
@@ -410,7 +412,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
      * @throws \RuntimeException If decrypt fails
      * @return string
      */
-    protected function _decrypt($kek, $block)
+    protected function _decrypt(string $kek, string $block): string
     {
         $str = openssl_decrypt($block, $this->_cipherMethod(), $kek,
             OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING);
@@ -426,9 +428,9 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
      *
      * @return string
      */
-    protected function _getLastOpenSSLError()
+    protected function _getLastOpenSSLError(): string
     {
-        $msg = null;
+        $msg = "";
         while (false !== ($err = openssl_error_string())) {
             $msg = $err;
         }
@@ -441,7 +443,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
      * @param string $val
      * @return string
      */
-    protected function _msb64($val)
+    protected function _msb64(string $val): string
     {
         return substr($val, 0, 8);
     }
@@ -452,7 +454,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
      * @param string $val
      * @return string
      */
-    protected function _lsb64($val)
+    protected function _lsb64(string $val): string
     {
         return substr($val, -8);
     }
@@ -464,7 +466,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
      * @param int $num
      * @return string
      */
-    protected function _uint64($num)
+    protected function _uint64(int $num): string
     {
         // truncate on 32 bit hosts
         if (PHP_INT_SIZE < 8) {

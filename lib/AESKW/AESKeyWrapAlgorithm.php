@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace AESKW;
 
 /**
@@ -27,7 +29,7 @@ interface AESKeyWrapAlgorithm
      * @throws \RuntimeException For invalid inputs
      * @return string Ciphertext
      */
-    public function wrap($key, $kek);
+    public function wrap(string $key, string $kek): string;
     
     /**
      * Unwrap a key from a ciphertext using given key encryption key.
@@ -38,7 +40,7 @@ interface AESKeyWrapAlgorithm
      * @throws \RuntimeException For invalid inputs
      * @return string Unwrapped key
      */
-    public function unwrap($ciphertext, $kek);
+    public function unwrap(string $ciphertext, string $kek): string;
     
     /**
      * Wrap a key of arbitrary length using given key encryption key.
@@ -53,7 +55,7 @@ interface AESKeyWrapAlgorithm
      * @throws \RuntimeException For invalid inputs
      * @return string Ciphertext
      */
-    public function wrapPad($key, $kek);
+    public function wrapPad(string $key, string $kek): string;
     
     /**
      * Unwrap a key from a padded ciphertext using given key encryption key.
@@ -67,5 +69,5 @@ interface AESKeyWrapAlgorithm
      * @throws \RuntimeException For invalid inputs
      * @return string Unwrapped key
      */
-    public function unwrapPad($ciphertext, $kek);
+    public function unwrapPad(string $ciphertext, string $kek): string;
 }
