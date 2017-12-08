@@ -118,7 +118,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
         $C = str_split($ciphertext, 8);
         list($A, $R) = $this->_unwrapBlocks($C, $kek);
         // check integrity value
-        if ($A != $this->_iv) {
+        if (!hash_equals($this->_iv, $A)) {
             throw new \UnexpectedValueException("Integrity check failed.");
         }
         // output the plaintext
@@ -348,7 +348,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
     protected function _checkPaddedIntegrity(string $A)
     {
         // check that MSB(32,A) = A65959A6
-        if (substr($A, 0, 4) != self::AIV_HI) {
+        if (!hash_equals(self::AIV_HI, substr($A, 0, 4))) {
             throw new \UnexpectedValueException("Integrity check failed.");
         }
     }
