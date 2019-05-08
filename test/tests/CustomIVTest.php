@@ -1,16 +1,21 @@
 <?php
 
+declare(strict_types = 1);
+
 use PHPUnit\Framework\TestCase;
 use Sop\AESKW\AESKW128;
 
+/**
+ * @internal
+ */
 class CustomIVTest extends TestCase
 {
-    const IV = "1122334466778899";
-    
-    const KEY = "PasswordPassword";
-    
-    const KEK = "00112233445566778899aabbccddeeff";
-    
+    const IV = '1122334466778899';
+
+    const KEY = 'PasswordPassword';
+
+    const KEK = '00112233445566778899aabbccddeeff';
+
     public function testWrap()
     {
         $algo = new AESKW128(hex2bin(self::IV));
@@ -18,7 +23,7 @@ class CustomIVTest extends TestCase
         $this->assertTrue(is_string($data));
         return $data;
     }
-    
+
     /**
      * @depends testWrap
      *

@@ -7,47 +7,35 @@ namespace Sop\AESKW;
 /**
  * Base class for AES key wrap algorithms with varying key sizes.
  *
- * @link https://tools.ietf.org/html/rfc3394
+ * @see https://tools.ietf.org/html/rfc3394
  */
 abstract class Algorithm implements AESKeyWrapAlgorithm
 {
     /**
      * Default initial value.
      *
-     * @link https://tools.ietf.org/html/rfc3394#section-2.2.3.1
+     * @see https://tools.ietf.org/html/rfc3394#section-2.2.3.1
+     *
      * @var string
      */
     const DEFAULT_IV = "\xA6\xA6\xA6\xA6\xA6\xA6\xA6\xA6";
-    
+
     /**
      * High order bytes of the alternative initial value for padding.
      *
-     * @link https://tools.ietf.org/html/rfc5649#section-3
+     * @see https://tools.ietf.org/html/rfc5649#section-3
+     *
      * @var string
      */
     const AIV_HI = "\xA6\x59\x59\xA6";
-    
+
     /**
      * Initial value.
      *
-     * @var string $_iv
+     * @var string
      */
     protected $_iv;
-    
-    /**
-     * Get OpenSSL cipher method.
-     *
-     * @return string
-     */
-    abstract protected function _cipherMethod(): string;
-    
-    /**
-     * Get key encryption key size.
-     *
-     * @return int
-     */
-    abstract protected function _keySize(): int;
-    
+
     /**
      * Constructor.
      *
@@ -55,12 +43,12 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
      */
     public function __construct(string $iv = self::DEFAULT_IV)
     {
-        if (strlen($iv) != 8) {
-            throw new \UnexpectedValueException("IV size must be 64 bits.");
+        if (8 != strlen($iv)) {
+            throw new \UnexpectedValueException('IV size must be 64 bits.');
         }
         $this->_iv = $iv;
     }
-    
+
     /**
      * Wrap a key using given key encryption key.
      *
@@ -73,7 +61,9 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
      *
      * @param string $key Key to wrap
      * @param string $kek Key encryption key
+     *
      * @throws \UnexpectedValueException If the key length is invalid
+     *
      * @return string Ciphertext
      */
     public function wrap(string $key, string $kek): string
@@ -82,11 +72,11 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
         // rfc3394 dictates n to be at least 2
         if ($key_len < 16) {
             throw new \UnexpectedValueException(
-                "Key length must be at least 16 octets.");
+                'Key length must be at least 16 octets.');
         }
         if (0 !== $key_len % 8) {
             throw new \UnexpectedValueException(
-                "Key length must be a multiple of 64 bits.");
+                'Key length must be a multiple of 64 bits.');
         }
         $this->_checkKEKSize($kek);
         // P = plaintext as 64 bit blocks
@@ -96,36 +86,38 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
             $P[$i++] = $val;
         }
         $C = $this->_wrapBlocks($P, $kek, $this->_iv);
-        return implode("", $C);
+        return implode('', $C);
     }
-    
+
     /**
      * Unwrap a key from a ciphertext using given key encryption key.
      *
      * @param string $ciphertext Ciphertext of the wrapped key
-     * @param string $kek Key encryption key
+     * @param string $kek        Key encryption key
+     *
      * @throws \UnexpectedValueException If the ciphertext is invalid
+     *
      * @return string Unwrapped key
      */
     public function unwrap(string $ciphertext, string $kek): string
     {
         if (0 !== strlen($ciphertext) % 8) {
             throw new \UnexpectedValueException(
-                "Ciphertext length must be a multiple of 64 bits.");
+                'Ciphertext length must be a multiple of 64 bits.');
         }
         $this->_checkKEKSize($kek);
         // C = ciphertext as 64 bit blocks with integrity check value prepended
         $C = str_split($ciphertext, 8);
-        list($A, $R) = $this->_unwrapBlocks($C, $kek);
+        [$A, $R] = $this->_unwrapBlocks($C, $kek);
         // check integrity value
         if (!hash_equals($this->_iv, $A)) {
-            throw new \UnexpectedValueException("Integrity check failed.");
+            throw new \UnexpectedValueException('Integrity check failed.');
         }
         // output the plaintext
         $P = array_slice($R, 1, null, true);
-        return implode("", $P);
+        return implode('', $P);
     }
-    
+
     /**
      * Wrap a key of arbitrary length using given key encryption key.
      *
@@ -135,17 +127,19 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
      *
      * @param string $key Key to wrap
      * @param string $kek Key encryption key
+     *
      * @throws \UnexpectedValueException If the key length is invalid
+     *
      * @return string Ciphertext
      */
     public function wrapPad(string $key, string $kek): string
     {
         if (!strlen($key)) {
             throw new \UnexpectedValueException(
-                "Key must have at least one octet.");
+                'Key must have at least one octet.');
         }
         $this->_checkKEKSize($kek);
-        list($key, $aiv) = $this->_padKey($key);
+        [$key, $aiv] = $this->_padKey($key);
         // If the padded key contains exactly eight octets,
         // let the ciphertext be:
         // C[0] | C[1] = ENC(K, A | P[1]).
@@ -160,9 +154,9 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
             $P[$i++] = $val;
         }
         $C = $this->_wrapBlocks($P, $kek, $aiv);
-        return implode("", $C);
+        return implode('', $C);
     }
-    
+
     /**
      * Unwrap a key from a padded ciphertext using given key encryption key.
      *
@@ -170,54 +164,74 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
      * <i>wrapPad</i>.
      *
      * @param string $ciphertext Ciphertext of the wrapped and padded key
-     * @param string $kek Key encryption key
+     * @param string $kek        Key encryption key
+     *
      * @throws \UnexpectedValueException If the ciphertext is invalid
+     *
      * @return string Unwrapped key
      */
     public function unwrapPad(string $ciphertext, string $kek): string
     {
         if (0 !== strlen($ciphertext) % 8) {
             throw new \UnexpectedValueException(
-                "Ciphertext length must be a multiple of 64 bits.");
+                'Ciphertext length must be a multiple of 64 bits.');
         }
         $this->_checkKEKSize($kek);
-        list($P, $A) = $this->_unwrapPaddedCiphertext($ciphertext, $kek);
+        [$P, $A] = $this->_unwrapPaddedCiphertext($ciphertext, $kek);
         // check message integrity
         $this->_checkPaddedIntegrity($A);
         // verify padding
         $len = $this->_verifyPadding($P, $A);
         // remove padding and return unwrapped key
-        return substr(implode("", $P), 0, $len);
+        return substr(implode('', $P), 0, $len);
     }
-    
+
+    /**
+     * Get OpenSSL cipher method.
+     *
+     * @return string
+     */
+    abstract protected function _cipherMethod(): string;
+
+    /**
+     * Get key encryption key size.
+     *
+     * @return int
+     */
+    abstract protected function _keySize(): int;
+
     /**
      * Check KEK size.
      *
      * @param string $kek
+     *
      * @throws \UnexpectedValueException
+     *
      * @return self
      */
     protected function _checkKEKSize(string $kek): self
     {
         $len = $this->_keySize();
         if (strlen($kek) != $len) {
-            throw new \UnexpectedValueException("KEK size must be $len bytes.");
+            throw new \UnexpectedValueException("KEK size must be ${len} bytes.");
         }
         return $this;
     }
-    
+
     /**
      * Apply Key Wrap to data blocks.
      *
      * Uses alternative version of the key wrap procedure described in the RFC.
      *
-     * @link https://tools.ietf.org/html/rfc3394#section-2.2.1
-     * @param string[] $P Plaintext, n 64-bit values <code>{P1, P2, ...,
-     *        Pn}</code>
-     * @param string $kek Key encryption key
-     * @param string $iv Initial value
+     * @see https://tools.ietf.org/html/rfc3394#section-2.2.1
+     *
+     * @param string[] $P   Plaintext, n 64-bit values <code>{P1, P2, ...,
+     *                      Pn}</code>
+     * @param string   $kek Key encryption key
+     * @param string   $iv  Initial value
+     *
      * @return string[] Ciphertext, (n+1) 64-bit values <code>{C0, C1, ...,
-     *         Cn}</code>
+     *                  Cn}</code>
      */
     protected function _wrapBlocks(array $P, string $kek, string $iv): array
     {
@@ -249,14 +263,15 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
         }
         return $C;
     }
-    
+
     /**
      * Unwrap the padded ciphertext producing plaintext and integrity value.
      *
      * @param string $ciphertext Ciphertext
-     * @param string $kek Encryption key
+     * @param string $kek        Encryption key
+     *
      * @return array Tuple of plaintext <code>{P1, P2, ..., Pn}</code> and
-     *         integrity value <code>A</code>
+     *               integrity value <code>A</code>
      */
     protected function _unwrapPaddedCiphertext(string $ciphertext, string $kek): array
     {
@@ -265,18 +280,18 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
         $n = count($C) - 1;
         // if key consists of only one block, recover AIV and padded key as:
         // A | P[1] = DEC(K, C[0] | C[1])
-        if ($n == 1) {
+        if (1 == $n) {
             $P = str_split($this->_decrypt($kek, $C[0] . $C[1]), 8);
             $A = $P[0];
             unset($P[0]);
         } else {
             // apply normal unwrapping
-            list($A, $R) = $this->_unwrapBlocks($C, $kek);
+            [$A, $R] = $this->_unwrapBlocks($C, $kek);
             $P = array_slice($R, 1, null, true);
         }
         return [$P, $A];
     }
-    
+
     /**
      * Apply Key Unwrap to data blocks.
      *
@@ -285,19 +300,22 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
      *
      * Does not compute step 3.
      *
-     * @link https://tools.ietf.org/html/rfc3394#section-2.2.2
-     * @param string[] $C Ciphertext, (n+1) 64-bit values <code>{C0, C1, ...,
-     *        Cn}</code>
-     * @param string $kek Key encryption key
+     * @see https://tools.ietf.org/html/rfc3394#section-2.2.2
+     *
+     * @param string[] $C   Ciphertext, (n+1) 64-bit values <code>{C0, C1, ...,
+     *                      Cn}</code>
+     * @param string   $kek Key encryption key
+     *
      * @throws \UnexpectedValueException
+     *
      * @return array Tuple of integrity value <code>A</code> and register
-     *         <code>R</code>
+     *               <code>R</code>
      */
     protected function _unwrapBlocks(array $C, string $kek): array
     {
         $n = count($C) - 1;
         if (!$n) {
-            throw new \UnexpectedValueException("No blocks.");
+            throw new \UnexpectedValueException('No blocks.');
         }
         // Set A = C[0]
         $A = $C[0];
@@ -317,13 +335,14 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
                 $R[$i] = $this->_lsb64($B);
             }
         }
-        return array($A, $R);
+        return [$A, $R];
     }
-    
+
     /**
      * Pad a key with zeroes and compute alternative initial value.
      *
      * @param string $key Key
+     *
      * @return array Tuple of padded key and AIV
      */
     protected function _padKey(string $key): array
@@ -334,43 +353,46 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
             $key .= str_repeat("\0", 8 - $len % 8);
         }
         // compute AIV
-        $mli = pack("N", $len);
+        $mli = pack('N', $len);
         $aiv = self::AIV_HI . $mli;
         return [$key, $aiv];
     }
-    
+
     /**
      * Check that the integrity check value of the padded key is correct.
      *
      * @param string $A
+     *
      * @throws \UnexpectedValueException
      */
-    protected function _checkPaddedIntegrity(string $A)
+    protected function _checkPaddedIntegrity(string $A): void
     {
         // check that MSB(32,A) = A65959A6
         if (!hash_equals(self::AIV_HI, substr($A, 0, 4))) {
-            throw new \UnexpectedValueException("Integrity check failed.");
+            throw new \UnexpectedValueException('Integrity check failed.');
         }
     }
-    
+
     /**
      * Verify that the padding of the plaintext is valid.
      *
-     * @param array $P Plaintext, n 64-bit values <code>{P1, P2, ...,
-     *        Pn}</code>
+     * @param array  $P Plaintext, n 64-bit values <code>{P1, P2, ...,
+     *                  Pn}</code>
      * @param string $A Integrity check value
+     *
      * @throws \UnexpectedValueException
+     *
      * @return int Message length without padding
      */
     protected function _verifyPadding(array $P, string $A): int
     {
         // extract mli
         $mli = substr($A, -4);
-        $len = unpack("N1", $mli)[1];
+        $len = unpack('N1', $mli)[1];
         // check under and overflow
         $n = count($P);
         if (8 * ($n - 1) >= $len || $len > 8 * $n) {
-            throw new \UnexpectedValueException("Invalid message length.");
+            throw new \UnexpectedValueException('Invalid message length.');
         }
         // if key is padded
         $b = 8 - ($len % 8);
@@ -379,18 +401,20 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
             $Pn = $P[$n];
             // check that padding consists of zeroes
             if (substr($Pn, -$b) != str_repeat("\0", $b)) {
-                throw new \UnexpectedValueException("Invalid padding.");
+                throw new \UnexpectedValueException('Invalid padding.');
             }
         }
         return $len;
     }
-    
+
     /**
      * Apply AES(K, W) operation (encrypt) to 64 bit block.
      *
      * @param string $kek
      * @param string $block
+     *
      * @throws \RuntimeException If encrypt fails
+     *
      * @return string
      */
     protected function _encrypt(string $kek, string $block): string
@@ -399,17 +423,19 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
             OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING);
         if (false === $str) {
             throw new \RuntimeException(
-                "openssl_encrypt() failed: " . $this->_getLastOpenSSLError());
+                'openssl_encrypt() failed: ' . $this->_getLastOpenSSLError());
         }
         return $str;
     }
-    
+
     /**
      * Apply AES-1(K, W) operation (decrypt) to 64 bit block.
      *
      * @param string $kek
      * @param string $block
+     *
      * @throws \RuntimeException If decrypt fails
+     *
      * @return string
      */
     protected function _decrypt(string $kek, string $block): string
@@ -418,11 +444,11 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
             OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING);
         if (false === $str) {
             throw new \RuntimeException(
-                "openssl_decrypt() failed: " . $this->_getLastOpenSSLError());
+                'openssl_decrypt() failed: ' . $this->_getLastOpenSSLError());
         }
         return $str;
     }
-    
+
     /**
      * Get the latest OpenSSL error message.
      *
@@ -430,48 +456,51 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
      */
     protected function _getLastOpenSSLError(): string
     {
-        $msg = "";
+        $msg = '';
         while (false !== ($err = openssl_error_string())) {
             $msg = $err;
         }
         return $msg;
     }
-    
+
     /**
      * Take 64 most significant bits from value.
      *
      * @param string $val
+     *
      * @return string
      */
     protected function _msb64(string $val): string
     {
         return substr($val, 0, 8);
     }
-    
+
     /**
      * Take 64 least significant bits from value.
      *
      * @param string $val
+     *
      * @return string
      */
     protected function _lsb64(string $val): string
     {
         return substr($val, -8);
     }
-    
+
     /**
      * Convert number to 64 bit unsigned integer octet string with
      * most significant bit first.
      *
      * @param int $num
+     *
      * @return string
      */
     protected function _uint64(int $num): string
     {
         // truncate on 32 bit hosts
         if (PHP_INT_SIZE < 8) {
-            return "\0\0\0\0" . pack("N", $num);
+            return "\0\0\0\0" . pack('N', $num);
         }
-        return pack("J", $num);
+        return pack('J', $num);
     }
 }

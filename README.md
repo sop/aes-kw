@@ -15,8 +15,9 @@ Supports AES key sizes of 128, 192 and 256 bits.
 
 ## Requirements
 
--   PHP >=7.0
+-   PHP >=7.2
 -   openssl
+-   hash
 
 ## Installation
 

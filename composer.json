@@ -1,32 +1,34 @@
 {
-	"name": "sop/aes-kw",
-	"description": "A PHP library for AES Key Wrap algorithm with padding support.",
-	"homepage": "https://github.com/sop/aes-kw",
-	"license": "MIT",
-	"type": "library",
-	"keywords": [
-		"aes",
-		"key wrap",
-		"aes key wrap"
-	],
-	"authors": [
-		{
-			"name": "Joni Eskelinen",
-			"email": "jonieske@gmail.com",
-			"role": "Developer"
-		}
-	],
-	"require": {
-		"php": ">=7.0",
-		"ext-openssl": "*",
-		"ext-hash": "*"
-	},
-	"require-dev": {
-		"phpunit/phpunit": "^6.4"
-	},
-	"autoload": {
-		"psr-4": {
-			"Sop\\AESKW\\": "lib/AESKW/"
-		}
-	}
+    "name": "sop/aes-kw",
+    "description": "A PHP library for AES Key Wrap algorithm with padding support.",
+    "homepage": "https://github.com/sop/aes-kw",
+    "license": "MIT",
+    "type": "library",
+    "keywords": [
+        "aes",
+        "key wrap",
+        "aes key wrap"
+    ],
+    "authors": [
+        {
+            "name": "Joni Eskelinen",
+            "email": "jonieske@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require": {
+        "php": ">=7.2",
+        "ext-openssl": "*",
+        "ext-hash": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^8.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Sop\\AESKW\\": "lib/AESKW/"
+        }
+    }
 }

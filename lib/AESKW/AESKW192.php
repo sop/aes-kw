@@ -10,16 +10,14 @@ namespace Sop\AESKW;
 class AESKW192 extends Algorithm
 {
     /**
-     *
      * {@inheritdoc}
      */
     protected function _cipherMethod(): string
     {
-        return "AES-192-ECB";
+        return 'AES-192-ECB';
     }
-    
+
     /**
-     *
      * {@inheritdoc}
      */
     protected function _keySize(): int
