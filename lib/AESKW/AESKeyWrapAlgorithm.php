@@ -17,8 +17,7 @@ interface AESKeyWrapAlgorithm
      * Wrap a key using given key encryption key.
      *
      * Key length must be at least 64 bits (8 octets) and a multiple
-     * of 64 bits (8 octets).
-     * Use <i>wrapPad</i> to wrap a key of arbitrary length.
+     * of 64 bits (8 octets). Use `wrapPad()` to wrap a key of arbitrary length.
      *
      * Key encryption key must have a size of underlying AES algorithm,
      * ie. 128, 196 or 256 bits.
@@ -53,7 +52,7 @@ interface AESKeyWrapAlgorithm
      *
      * This variant of wrapping does not place any restriction on key size.
      *
-     * Key encryption key has the same restrictions as with <i>wrap</i> method.
+     * Key encryption key has the same restrictions as with `wrap()` method.
      *
      * @see https://tools.ietf.org/html/rfc5649#section-4.1
      *
@@ -69,8 +68,7 @@ interface AESKeyWrapAlgorithm
     /**
      * Unwrap a key from a padded ciphertext using given key encryption key.
      *
-     * This variant of unwrapping must be used if the key was wrapped using
-     * <i>wrapPad</i>.
+     * This variant of unwrapping must be used if the key was wrapped using `wrapPad()`.
      *
      * @see https://tools.ietf.org/html/rfc5649#section-4.2
      *

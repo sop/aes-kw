@@ -53,8 +53,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
      * Wrap a key using given key encryption key.
      *
      * Key length must be at least 64 bits (8 octets) and a multiple
-     * of 64 bits (8 octets).
-     * Use <i>wrapPad</i> to wrap a key of arbitrary length.
+     * of 64 bits (8 octets). Use `wrapPad()` to wrap a key of arbitrary length.
      *
      * Key encryption key must have a size of underlying AES algorithm,
      * ie. 128, 196 or 256 bits.
@@ -123,7 +122,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
      *
      * This variant of wrapping does not place any restriction on key size.
      *
-     * Key encryption key has the same restrictions as with <i>wrap</i> method.
+     * Key encryption key has the same restrictions as with `wrap()` method.
      *
      * @param string $key Key to wrap
      * @param string $kek Key encryption key
@@ -160,8 +159,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
     /**
      * Unwrap a key from a padded ciphertext using given key encryption key.
      *
-     * This variant of unwrapping must be used if the key was wrapped using
-     * <i>wrapPad</i>.
+     * This variant of unwrapping must be used if the key was wrapped using `wrapPad()`.
      *
      * @param string $ciphertext Ciphertext of the wrapped and padded key
      * @param string $kek        Key encryption key
@@ -225,11 +223,11 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
      *
      * @see https://tools.ietf.org/html/rfc3394#section-2.2.1
      *
-     * @param string[] $P   Plaintext, n 64-bit values <code>{P1, P2, ..., Pn}</code>
+     * @param string[] $P   Plaintext, n 64-bit values `{P1, P2, ..., Pn}`
      * @param string   $kek Key encryption key
      * @param string   $iv  Initial value
      *
-     * @return string[] Ciphertext, (n+1) 64-bit values <code>{C0, C1, ..., Cn}</code>
+     * @return string[] Ciphertext, (n+1) 64-bit values `{C0, C1, ..., Cn}`
      */
     protected function _wrapBlocks(array $P, string $kek, string $iv): array
     {
@@ -268,8 +266,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
      * @param string $ciphertext Ciphertext
      * @param string $kek        Encryption key
      *
-     * @return array Tuple of plaintext <code>{P1, P2, ..., Pn}</code> and
-     *               integrity value <code>A</code>
+     * @return array Tuple of plaintext `{P1, P2, ..., Pn}` and integrity value `A`
      */
     protected function _unwrapPaddedCiphertext(string $ciphertext, string $kek): array
     {
@@ -293,19 +290,18 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
     /**
      * Apply Key Unwrap to data blocks.
      *
-     * Uses the index based version of key unwrap procedure
-     * described in the RFC.
+     * Uses the index based version of key unwrap procedure described in the RFC.
      *
      * Does not compute step 3.
      *
      * @see https://tools.ietf.org/html/rfc3394#section-2.2.2
      *
-     * @param string[] $C   Ciphertext, (n+1) 64-bit values <code>{C0, C1, ..., Cn}</code>
+     * @param string[] $C   Ciphertext, (n+1) 64-bit values `{C0, C1, ..., Cn}`
      * @param string   $kek Key encryption key
      *
      * @throws \UnexpectedValueException
      *
-     * @return array Tuple of integrity value <code>A</code> and register <code>R</code>
+     * @return array Tuple of integrity value `A` and register `R`
      */
     protected function _unwrapBlocks(array $C, string $kek): array
     {
@@ -372,7 +368,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
     /**
      * Verify that the padding of the plaintext is valid.
      *
-     * @param array  $P Plaintext, n 64-bit values <code>{P1, P2, ..., Pn}</code>
+     * @param array  $P Plaintext, n 64-bit values `{P1, P2, ..., Pn}`
      * @param string $A Integrity check value
      *
      * @throws \UnexpectedValueException
