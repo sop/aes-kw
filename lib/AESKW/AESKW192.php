@@ -14,7 +14,7 @@ class AESKW192 extends Algorithm
      */
     protected function _cipherMethod(): string
     {
-        return 'AES-192-ECB';
+        return 'aes-192-ecb';
     }
 
     /**

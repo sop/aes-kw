@@ -14,7 +14,7 @@ class AESKW256 extends Algorithm
      */
     protected function _cipherMethod(): string
     {
-        return 'AES-256-ECB';
+        return 'aes-256-ecb';
     }
 
     /**

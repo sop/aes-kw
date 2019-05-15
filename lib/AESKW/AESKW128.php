@@ -14,7 +14,7 @@ class AESKW128 extends Algorithm
      */
     protected function _cipherMethod(): string
     {
-        return 'AES-128-ECB';
+        return 'aes-128-ecb';
     }
 
     /**
