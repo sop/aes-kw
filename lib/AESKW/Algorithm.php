@@ -43,7 +43,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
      */
     public function __construct(string $iv = self::DEFAULT_IV)
     {
-        if (8 != strlen($iv)) {
+        if (8 !== strlen($iv)) {
             throw new \UnexpectedValueException('IV size must be 64 bits.');
         }
         $this->_iv = $iv;
@@ -143,7 +143,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
         // If the padded key contains exactly eight octets,
         // let the ciphertext be:
         // C[0] | C[1] = ENC(K, A | P[1]).
-        if (8 == strlen($key)) {
+        if (8 === strlen($key)) {
             return $this->_encrypt($kek, $aiv . $key);
         }
         // build plaintext blocks and apply normal wrapping with AIV as an
@@ -212,8 +212,8 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
     protected function _checkKEKSize(string $kek): self
     {
         $len = $this->_keySize();
-        if (strlen($kek) != $len) {
-            throw new \UnexpectedValueException("KEK size must be ${len} bytes.");
+        if (strlen($kek) !== $len) {
+            throw new \UnexpectedValueException("KEK size must be {$len} bytes.");
         }
         return $this;
     }
@@ -225,13 +225,11 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
      *
      * @see https://tools.ietf.org/html/rfc3394#section-2.2.1
      *
-     * @param string[] $P   Plaintext, n 64-bit values <code>{P1, P2, ...,
-     *                      Pn}</code>
+     * @param string[] $P   Plaintext, n 64-bit values <code>{P1, P2, ..., Pn}</code>
      * @param string   $kek Key encryption key
      * @param string   $iv  Initial value
      *
-     * @return string[] Ciphertext, (n+1) 64-bit values <code>{C0, C1, ...,
-     *                  Cn}</code>
+     * @return string[] Ciphertext, (n+1) 64-bit values <code>{C0, C1, ..., Cn}</code>
      */
     protected function _wrapBlocks(array $P, string $kek, string $iv): array
     {
@@ -280,7 +278,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
         $n = count($C) - 1;
         // if key consists of only one block, recover AIV and padded key as:
         // A | P[1] = DEC(K, C[0] | C[1])
-        if (1 == $n) {
+        if (1 === $n) {
             $P = str_split($this->_decrypt($kek, $C[0] . $C[1]), 8);
             $A = $P[0];
             unset($P[0]);
@@ -302,14 +300,12 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
      *
      * @see https://tools.ietf.org/html/rfc3394#section-2.2.2
      *
-     * @param string[] $C   Ciphertext, (n+1) 64-bit values <code>{C0, C1, ...,
-     *                      Cn}</code>
+     * @param string[] $C   Ciphertext, (n+1) 64-bit values <code>{C0, C1, ..., Cn}</code>
      * @param string   $kek Key encryption key
      *
      * @throws \UnexpectedValueException
      *
-     * @return array Tuple of integrity value <code>A</code> and register
-     *               <code>R</code>
+     * @return array Tuple of integrity value <code>A</code> and register <code>R</code>
      */
     protected function _unwrapBlocks(array $C, string $kek): array
     {
@@ -349,7 +345,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
     {
         $len = strlen($key);
         // append padding
-        if (0 != $len % 8) {
+        if (0 !== $len % 8) {
             $key .= str_repeat("\0", 8 - $len % 8);
         }
         // compute AIV
@@ -376,8 +372,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
     /**
      * Verify that the padding of the plaintext is valid.
      *
-     * @param array  $P Plaintext, n 64-bit values <code>{P1, P2, ...,
-     *                  Pn}</code>
+     * @param array  $P Plaintext, n 64-bit values <code>{P1, P2, ..., Pn}</code>
      * @param string $A Integrity check value
      *
      * @throws \UnexpectedValueException
@@ -400,7 +395,7 @@ abstract class Algorithm implements AESKeyWrapAlgorithm
             // last block (note that the first index in P is 1)
             $Pn = $P[$n];
             // check that padding consists of zeroes
-            if (substr($Pn, -$b) != str_repeat("\0", $b)) {
+            if (substr($Pn, -$b) !== str_repeat("\0", $b)) {
                 throw new \UnexpectedValueException('Invalid padding.');
             }
         }
