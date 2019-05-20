@@ -1,9 +1,9 @@
+# AES Key Wrap
+
 [![Build Status](https://travis-ci.org/sop/aes-kw.svg?branch=master)](https://travis-ci.org/sop/aes-kw)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/sop/aes-kw/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/sop/aes-kw/?branch=master)
 [![Coverage Status](https://coveralls.io/repos/github/sop/aes-kw/badge.svg?branch=master)](https://coveralls.io/github/sop/aes-kw?branch=master)
 [![License](https://poser.pugx.org/sop/aes-kw/license)](https://github.com/sop/aes-kw/blob/master/LICENSE)
-
-# AES Key Wrap
 
 A PHP library for AES Key Wrap
 ([RFC 3394](https://tools.ietf.org/html/rfc3394))
@@ -15,9 +15,9 @@ Supports AES key sizes of 128, 192 and 256 bits.
 
 ## Requirements
 
--   PHP >=7.2
--   openssl
--   hash
+- PHP >=7.2
+- openssl
+- hash
 
 ## Installation
 
@@ -35,8 +35,8 @@ Here are some simple usage examples. Namespaces are omitted for brevity.
 Wrap a key of 16 bytes using a 16-byte key encryption key.
 
 ```php
-$kek = "0123456789abcdef"; // 128-bit key encryption key
-$key = "MySecretPassword"; // key to encrypt
+$kek = '0123456789abcdef'; // 128-bit key encryption key
+$key = 'MySecretPassword'; // key to encrypt
 $algo = new AESKW128();
 $ciphertext = $algo->wrap($key, $kek);
 echo bin2hex($ciphertext);
@@ -65,8 +65,8 @@ Outputs:
 Wrapping a key that is not a multiple of 64 bits requires padding.
 
 ```php
-$kek = "012345678901234567890123"; // 192-bit key encryption key
-$key = "My hovercraft is full of eels."; // passphrase to encrypt
+$kek = '012345678901234567890123'; // 192-bit key encryption key
+$key = 'My hovercraft is full of eels.'; // passphrase to encrypt
 $algo = new AESKW192();
 $ciphertext = $algo->wrapPad($key, $kek);
 echo bin2hex($ciphertext);
