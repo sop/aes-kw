@@ -1,9 +1,9 @@
-[![Build Status](https://travis-ci.org/sop/aes-kw.svg?branch=master)](https://travis-ci.org/sop/aes-kw)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/sop/aes-kw/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/sop/aes-kw/?branch=master)
-[![Coverage Status](https://coveralls.io/repos/github/sop/aes-kw/badge.svg?branch=master)](https://coveralls.io/github/sop/aes-kw?branch=master)
-[![License](https://poser.pugx.org/sop/aes-kw/license)](https://github.com/sop/aes-kw/blob/master/LICENSE)
-
 # AES Key Wrap
+
+[![Build Status](https://travis-ci.org/sop/aes-kw.svg?branch=php70)](https://travis-ci.org/sop/aes-kw)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/sop/aes-kw/badges/quality-score.png?b=php70)](https://scrutinizer-ci.com/g/sop/aes-kw/?branch=php70)
+[![Coverage Status](https://coveralls.io/repos/github/sop/aes-kw/badge.svg?branch=php70)](https://coveralls.io/github/sop/aes-kw?branch=php70)
+[![License](https://poser.pugx.org/sop/aes-kw/license)](https://github.com/sop/aes-kw/blob/php70/LICENSE)
 
 A PHP library for AES Key Wrap
 ([RFC 3394](https://tools.ietf.org/html/rfc3394))
@@ -15,8 +15,9 @@ Supports AES key sizes of 128, 192 and 256 bits.
 
 ## Requirements
 
--   PHP >=7.0
--   openssl
+- PHP >=7.0
+- openssl
+- hash
 
 ## Installation
 
